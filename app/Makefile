@@ -27,6 +27,6 @@ invoke:
 	cargo lambda invoke --remote \
   		--data-ascii '{"command": "hi"}' \
   		--output-format json \
-  		rust-aws-lambda
+  		app
 
 all: format lint test run
