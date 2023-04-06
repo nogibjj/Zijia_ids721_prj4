@@ -1,4 +1,7 @@
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};
+use rusoto_core::Region;
+use rusoto_s3::{S3Client, S3};
+
 
 use serde::{Deserialize, Serialize};
 
@@ -41,6 +44,18 @@ async fn function_handler(event: LambdaEvent<Request>) -> Result<Response, Error
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
+    let client = S3Client::new(Region::default());
+    let bucket_name = "20newsgroups".to_string();
+    let get_object_request = rusoto_s3::GetObjectRequest {
+        bucket: bucket_name,
+        ..Default::default()
+    };
+    let object = client.get_object(get_object_request).await.unwrap();
+
+    //todo: analyze the data from s3 bucket, do text classification, and store the result in s3 bucket
+
+    //todo: handle the function with: command is id, then return the classification result of the id
+
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         // disable printing the name of the module in every log line.
