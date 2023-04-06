@@ -3,6 +3,7 @@ Analyze 20Newsgroups dataset and do text classification for them.
 
 ## Work flow
 Week 1: Connect to AWS lambda
+
 Week 2: Add dataset to S3 bucket and connect
 
 ## References
