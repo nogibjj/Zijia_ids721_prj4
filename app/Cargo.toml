@@ -23,3 +23,8 @@ tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt"] }
 rusoto_s3 = "0.48.0"
 rusoto_core = "0.48.0"
+csv = "1.1.6"
+rust_stemmers = "0.7.0"
+regex = "1.5.4"
+serde_json = "1.0.66"
+stop-words = "0.8.4"

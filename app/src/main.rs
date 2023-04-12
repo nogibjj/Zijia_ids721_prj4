@@ -4,38 +4,45 @@ use rusoto_s3::{S3Client, S3};
 
 
 use serde::{Deserialize, Serialize};
+// import functions from lib.rs
+use crate::lib::{read_data, text_process, tokenize, train_model, predict, get_accuracy, get_confusion_matrix, get_classification_report};
 
-/// This is a made-up example. Requests come into the runtime as unicode
-/// strings in json format, which can map to any structure that implements `serde::Deserialize`
-/// The runtime pays no attention to the contents of the request payload.
+// define a static variable to hold the model
+static mut MODEL: Option<NaiveBayes> = None;
+
 #[derive(Deserialize)]
 struct Request {
+    // this is the content of a news post
     command: String,
 }
 
-/// This is a made-up example of what a response structure may look like.
-/// There is no restriction on what it can be. The runtime requires responses
-/// to be serialized into json. The runtime pays no attention
-/// to the contents of the response payload.
 #[derive(Serialize)]
 struct Response {
     req_id: String,
-    msg: String,
+    tc_result: String,
 }
 
-/// This is the main body for the function.
-/// Write your code inside it.
-/// There are some code example in the following URLs:
-/// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
-/// - https://github.com/aws-samples/serverless-rust-demo/
 async fn function_handler(event: LambdaEvent<Request>) -> Result<Response, Error> {
-    // Extract some useful info from the request
+    // Extract document name from the event
     let command = event.payload.command;
+
+    // read the data from s3 bucket, file name is command
+    let client = S3Client::new(Region::default());
+    let bucket_name = "20newsgroups".to_string();
+    let get_object_request = rusoto_s3::GetObjectRequest {
+        bucket: bucket_name,
+        key: command,
+        ..Default::default()
+    };
+
+    // use MODEL to do text classification prediction for this news post
+    let object = client.get_object(get_object_request).await.unwrap();
+    let result = predict(&tokenize(&read_data(&PathBuf::from("./20news-bydate-test"))), &MODEL);
 
     // Prepare the response
     let resp = Response {
         req_id: event.context.request_id,
-        msg: format!("Command {}.", command),
+        tc_result: format!("The classification of this post is {}.", result),
     };
 
     // Return `Response` (it will be serialized to JSON automatically by the runtime)
@@ -52,9 +59,8 @@ async fn main() -> Result<(), Error> {
     };
     let object = client.get_object(get_object_request).await.unwrap();
 
-    //todo: analyze the data from s3 bucket, do text classification, and store the result in s3 bucket
-
-    //todo: handle the function with: command is id, then return the classification result of the id
+    //analyze the data from s3 bucket, do text classification
+    MODEL = train_model(&tokenize(&read_data(&PathBuf::from("./20news-bydate-train"))));
 
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
