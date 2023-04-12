@@ -5,6 +5,7 @@ Analyze 20Newsgroups dataset and do text classification based on them.
 Week 1: Connect to AWS lambda
 
 Week 2: Add dataset to S3 bucket and connect
+
 Week 3: Combine NLP algorithm with aws lambda function. 
 
 ## References
